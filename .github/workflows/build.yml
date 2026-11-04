@@ -1,0 +1,36 @@
+
+name: Build Eyebound
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract source
+        run: unzip -q Eyebound.zip
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: Eyebound/pom.xml
+
+      - name: Build plugin
+        run: mvn -B -f Eyebound/pom.xml clean package
+
+      - name: Upload plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: Eyebound-Plugin
+          path: Eyebound/target/*.jar
+          if-no-files-found: error
